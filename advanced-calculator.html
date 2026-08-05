@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Advanced Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1400px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 320px;
+        }
+
+        .calculator-title {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .memory-display {
+            font-size: 12px;
+            color: #999;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        .display {
+            margin-bottom: 15px;
+        }
+
+        #display,
+        #scientific-display,
+        #programmer-display {
+            width: 100%;
+            padding: 16px;
+            font-size: 22px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            text-align: right;
+            background: #f8f9ff;
+            color: #333;
+            font-weight: 600;
+            word-wrap: break-word;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .programmer-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 14px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #e0e0e0;
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-function {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-function:hover {
+            background: #5568d3;
+        }
+
+        .btn-operator {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-operator:hover {
+            background: #653a8a;
+        }
+
+        .btn-equals {
+            background: #48bb78;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: #38a169;
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .btn-scientific {
+            background: #ed8936;
+            color: white;
+            font-size: 11px;
+            padding: 12px;
+        }
+
+        .btn-scientific:hover {
+            background: #dd6b20;
+        }
+
+        .btn-programmer {
+            background: #9f7aea;
+            color: white;
+            font-size: 11px;
+        }
+
+        .btn-programmer:hover {
+            background: #805ad5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .right-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .history-section, .converter-section, .stats-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 280px;
+            max-height: 500px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .history-item {
+            padding: 10px;
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .history-item:hover {
+            background: #e8ebff;
+            transform: translateX(5px);
+        }
+
+        .history-item-expression {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .history-item-result {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 3px;
+        }
+
+        .converter-input {
+            margin-bottom: 12px;
+        }
+
+        .converter-input label {
+            font-size: 11px;
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .converter-input input, .converter-input select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .converter-result {
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #2e7d32;
+            font-weight: 600;
+            word-wrap: break-word;
+        }
+
+        .stats-item {
+            padding: 10px;
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .stats-label {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .stats-value {
+            color: #333;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .clear-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            background: #c53030;
+        }
+
+        .bit-display {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .bit {
+            padding: 8px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bit.one {
+            background: #48bb78;
+            color: white;
+            border-color: #38a169;
+        }
+
+        .bit:hover {
+            transform: scale(1.1);
+        }
+
+        .base-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .base-item {
+            padding: 10px;
+            background: #f8f9ff;
+            border: 1px solid #667eea;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .base-label {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .base-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 3px;
+            word-break: break-all;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-theme .calculator,
+        body.dark-theme .history-section,
+        body.dark-theme .converter-section,
+        body.dark-theme .stats-section {
+            background: #2d2d44;
+            color: #fff;
+        }
+
+        body.dark-theme #display,
+        body.dark-theme #scientific-display,
+        body.dark-theme #programmer-display {
+            background: #1a1a2e;
+            color: #00ff88;
+            border-color: #00ff88;
+        }
+
+        body.dark-theme .btn {
+            background: #404060;
+            color: #fff;
+        }
+
+        body.dark-theme .btn:hover {
+            background: #505080;
+        }
+
+        body.dark-theme .calculator-title,
+        body.dark-theme .section-title {
+            color: #00ff88;
+        }
+
+        body.dark-theme .mode-btn {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        body.dark-theme .mode-btn.active {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .right-panels {
+                width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+
+    <div class="main-container">
+        <!-- Left Panel: Calculators -->
+        <div class="left-panel">
+            <!-- Standard Calculator -->
+            <div id="standard-calc" class="calculator">
+                <div class="calculator-title">Calculator</div>
+                <div class="mode-toggle">
+                    <button class="mode-btn active" onclick="switchMode('standard')">Standard</button>
+                    <button class="mode-btn" onclick="switchMode('scientific')">Scientific</button>
+                    <button class="mode-btn" onclick="switchMode('programmer')">Programmer</button>
+                </div>
+                <div class="memory-display" id="memory-display"></div>
+                <div class="display">
+                    <input type="text" id="display" readonly>
+                </div>
+                <div class="buttons" id="standard-buttons">
+                    <button class="btn btn-function" onclick="clearDisplay()">C</button>
+                    <button class="btn btn-function" onclick="deleteLast()">←</button>
+                    <button class="btn btn-function" onclick="toggleSign()">+/-</button>
+                    <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+                    
+                    <button class="btn" onclick="appendNumber('7')">7</button>
+                    <button class="btn" onclick="appendNumber('8')">8</button>
+                    <button class="btn" onclick="appendNumber('9')">9</button>
+                    <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+                    
+                    <button class="btn" onclick="appendNumber('4')">4</button>
+                    <button class="btn" onclick="appendNumber('5')">5</button>
+                    <button class="btn" onclick="appendNumber('6')">6</button>
+                    <button class="btn btn-operator" onclick="appendOperator('-')">−</button>
+                    
+                    <button class="btn" onclick="appendNumber('1')">1</button>
+                    <button class="btn" onclick="appendNumber('2')">2</button>
+                    <button class="btn" onclick="appendNumber('3')">3</button>
+                    <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+                    
+                    <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
+                    <button class="btn" onclick="appendNumber('.')">.</button>
+                    <button class="btn btn-equals" onclick="calculate()">=</button>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <button class="btn btn-function" onclick="memoryAdd()">M+</button>
+                    <button class="btn btn-function" onclick="memorySubtract()">M−</button>
+                    <button class="btn btn-function" onclick="memoryRecall()">MR</button>
+                    <button class="btn btn-function" onclick="memoryClear()">MC</button>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <button class="btn btn-operator" onclick="calculatePercent()">%</button>
+                    <button class="btn btn-operator" onclick="calculateSquareRoot()">√</button>
+                    <button class="btn btn-operator" onclick="calculateSquare()">x²</button>
+                    <button class="btn btn-operator" onclick="toggleDegRad()"><span id="deg-rad">DEG</span></button>
+                </div>
+            </div>
+
+            <!-- Scientific Calculator -->
+            <div id="scientific-calc" class="calculator hidden">
+                <div class="calculator-title">Scientific</div>
+                <div class="mode-toggle">
+                    <button class="mode-btn" onclick="switchMode('standard')">Standard</button>
+                    <button class="mode-btn active" onclick="switchMode('scientific')">Scientific</button>
+                    <button class="mode-btn" onclick="switchMode('programmer')">Programmer</button>
+                </div>
+                <div class="memory-display" id="memory-display-sci"></div>
+                <div class="display">
+                    <input type="text" id="scientific-display" readonly>
+                </div>
+                <div class="scientific-buttons">
+                    <button class="btn btn-function" onclick="clearDisplay()">C</button>
+                    <button class="btn btn-function" onclick="deleteLast()">←</button>
+                    <button class="btn btn-function" onclick="toggleSign()">+/-</button>
+                    <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('sin')">sin</button>
+
+                    <button class="btn" onclick="appendNumber('7')">7</button>
+                    <button class="btn" onclick="appendNumber('8')">8</button>
+                    <button class="btn" onclick="appendNumber('9')">9</button>
+                    <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('cos')">cos</button>
+
+                    <button class="btn" onclick="appendNumber('4')">4</button>
+                    <button class="btn" onclick="appendNumber('5')">5</button>
+                    <button class="btn" onclick="appendNumber('6')">6</button>
+                    <button class="btn btn-operator" onclick="appendOperator('-')">−</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('tan')">tan</button>
+
+                    <button class="btn" onclick="appendNumber('1')">1</button>
+                    <button class="btn" onclick="appendNumber('2')">2</button>
+                    <button class="btn" onclick="appendNumber('3')">3</button>
+                    <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('log')">log</button>
+
+                    <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
+                    <button class="btn" onclick="appendNumber('.')">.</button>
+                    <button class="btn btn-equals" onclick="calculate()">=</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('ln')">ln</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('pi')">π</button>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                    <button class="btn btn-scientific" onclick="scientificFunction('sqrt')">√</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('square')">x²</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('cube')">x³</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('factorial')">n!</button>
+                    <button class="btn btn-scientific" onclick="scientificFunction('reciprocal')">1/x</button>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button class="btn btn-function" onclick="memoryAdd()">M+</button>
+                    <button class="btn btn-function" onclick="memorySubtract()">M−</button>
+                    <button class="btn btn-function" onclick="memoryRecall()">MR</button>
+                </div>
+            </div>
+
+            <!-- Programmer Calculator -->
+            <div id="programmer-calc" class="calculator hidden">
+                <div class="calculator-title">Programmer</div>
+                <div class="mode-toggle">
+                    <button class="mode-btn" onclick="switchMode('standard')">Standard</button>
+                    <button class="mode-btn" onclick="switchMode('scientific')">Scientific</button>
+                    <button class="mode-btn active" onclick="switchMode('programmer')">Programmer</button>
+                </div>
+                <div class="display">
+                    <input type="text" id="programmer-display" readonly>
+                </div>
+                
+                <div class="base-display">
+                    <div class="base-item">
+                        <div class="base-label">HEX</div>
+                        <div class="base-value" id="hex-display">0</div>
+                    </div>
+                    <div class="base-item">
+                        <div class="base-label">BIN</div>
+                        <div class="base-value" id="bin-display">0</div>
+                    </div>
+                    <div class="base-item">
+                        <div class="base-label">DEC</div>
+                        <div class="base-value" id="dec-display">0</div>
+                    </div>
+                    <div class="base-item">
+                        <div class="base-label">OCT</div>
+                        <div class="base-value" id="oct-display">0</div>
+                    </div>
+                </div>
+
+                <div class="bit-display" id="bit-display"></div>
+
+                <div class="programmer-buttons">
+                    <button class="btn btn-function" onclick="clearDisplay()">C</button>
+                    <button class="btn btn-function" onclick="deleteLast()">←</button>
+                    <button class="btn btn-programmer" onclick="appendNumber('0')">0</button>
+                    <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+                    
+                    <button class="btn" onclick="appendNumber('1')">1</button>
+                    <button class="btn" onclick="appendNumber('2')">2</button>
+                    <button class="btn" onclick="appendNumber('3')">3</button>
+                    <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+                    
+                    <button class="btn" onclick="appendNumber('4')">4</button>
+                    <button class="btn" onclick="appendNumber('5')">5</button>
+                    <button class="btn" onclick="appendNumber('6')">6</button>
+                    <button class="btn btn-operator" onclick="appendOperator('-')">−</button>
+                    
+                    <button class="btn" onclick="appendNumber('7')">7</button>
+                    <button class="btn" onclick="appendNumber('8')">8</button>
+                    <button class="btn" onclick="appendNumber('9')">9</button>
+                    <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+                    
+                    <button class="btn btn-programmer" onclick="appendNumber('A')">A</button>
+                    <button class="btn btn-programmer" onclick="appendNumber('B')">B</button>
+                    <button class="btn btn-programmer" onclick="appendNumber('C')">C</button>
+                    <button class="btn btn-equals" onclick="calculate()">=</button>
+                    
+                    <button class="btn btn-programmer" onclick="appendNumber('D')">D</button>
+                    <button class="btn btn-programmer" onclick="appendNumber('E')">E</button>
+                    <button class="btn btn-programmer" onclick="appendNumber('F')">F</button>
+                </div>
+
+                <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button class="btn btn-programmer" onclick="bitwiseOperation('AND')">AND</button>
+                    <button class="btn btn-programmer" onclick="bitwiseOperation('OR')">OR</button>
+                    <button class="btn btn-programmer" onclick="bitwiseOperation('XOR')">XOR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: History, Converter, Stats -->
+        <div class="right-panels">
+            <!-- History Panel -->
+            <div class="history-section">
+                <div class="section-title">History</div>
+                <div id="history-list" style="max-height: 420px; overflow-y: auto;"></div>
+                <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+            </div>
+
+            <!-- Unit Converter -->
+            <div class="converter-section">
+                <div class="section-title">Unit Converter</div>
+                
+                <div class="converter-input">
+                    <label>Length</label>
+                    <input type="number" id="length-input" placeholder="Enter value" oninput="convertLength()">
+                    <select id="length-from" onchange="convertLength()">
+                        <option value="m">Meters (m)</option>
+                        <option value="km">Kilometers (km)</option>
+                        <option value="cm">Centimeters (cm)</option>
+                        <option value="ft">Feet (ft)</option>
+                        <option value="mi">Miles (mi)</option>
+                    </select>
+                    <div class="converter-result" id="length-result" style="margin-top: 8px;"></div>
+                </div>
+
+                <div class="converter-input">
+                    <label>Temperature</label>
+                    <input type="number" id="temp-input" placeholder="Enter value" oninput="convertTemp()">
+                    <select id="temp-from" onchange="convertTemp()">
+                        <option value="c">Celsius (°C)</option>
+                        <option value="f">Fahrenheit (°F)</option>
+                        <option value="k">Kelvin (K)</option>
+                    </select>
+                    <div class="converter-result" id="temp-result" style="margin-top: 8px;"></div>
+                </div>
+
+                <div class="converter-input">
+                    <label>Weight</label>
+                    <input type="number" id="weight-input" placeholder="Enter value" oninput="convertWeight()">
+                    <select id="weight-from" onchange="convertWeight()">
+                        <option value="kg">Kilograms (kg)</option>
+                        <option value="lb">Pounds (lb)</option>
+                        <option value="g">Grams (g)</option>
+                        <option value="oz">Ounces (oz)</option>
+                    </select>
+                    <div class="converter-result" id="weight-result" style="margin-top: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="stats-section">
+                <div class="section-title">Statistics</div>
+                <div class="stats-item">
+                    <div class="stats-label">Total Operations</div>
+                    <div class="stats-value" id="total-ops">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">Total History</div>
+                    <div class="stats-value" id="total-history">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">Last Result</div>
+                    <div class="stats-value" id="last-result">—</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">Average Result</div>
+                    <div class="stats-value" id="avg-result">—</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">Session Time</div>
+                    <div class="stats-value" id="session-time">0s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ GLOBAL VARIABLES ============
+        let display = document.getElementById('display');
+        let sciDisplay = document.getElementById('scientific-display');
+        let progDisplay = document.getElementById('programmer-display');
+        let currentInput = '';
+        let operator = '';
+        let previousValue = '';
+        let memory = 0;
+        let history = [];
+        let isDegree = true;
+        let currentMode = 'standard';
+        let bitwiseOp = '';
+        let stats = { totalOps: 0, sessionStart: Date.now() };
+
+        function getDisplay() {
+            if (currentMode === 'scientific') return sciDisplay;
+            if (currentMode === 'programmer') return progDisplay;
+            return display;
+        }
+
+        function updateDisplay() {
+            const displayEl = getDisplay();
+            displayEl.value = currentInput || '0';
+            
+            if (currentMode === 'programmer') {
+                updateProgrammerDisplay();
+            }
+        }
+
+        function updateProgrammerDisplay() {
+            const num = parseInt(currentInput) || 0;
+            document.getElementById('hex-display').textContent = num.toString(16).toUpperCase() || '0';
+            document.getElementById('bin-display').textContent = num.toString(2) || '0';
+            document.getElementById('dec-display').textContent = num.toString(10) || '0';
+            document.getElementById('oct-display').textContent = num.toString(8) || '0';
+            updateBitDisplay(num);
+        }
+
+        function updateBitDisplay(num) {
+            const bitDisplay = document.getElementById('bit-display');
+            bitDisplay.innerHTML = '';
+            for (let i = 7; i >= 0; i--) {
+                const bit = (num >> i) & 1;
+                const bitEl = document.createElement('div');
+                bitEl.className = `bit ${bit ? 'one' : ''}`;
+                bitEl.textContent = bit;
+                bitEl.onclick = () => toggleBit(i);
+                bitDisplay.appendChild(bitEl);
+            }
+        }
+
+        function toggleBit(position) {
+            let num = parseInt(currentInput) || 0;
+            num ^= (1 << position);
+            currentInput = num.toString();
+            updateDisplay();
+        }
+
+        function updateMemoryDisplay() {
+            const memDisplay = document.getElementById(
+                currentMode === 'scientific' ? 'memory-display-sci' : 'memory-display'
+            );
+            if (memDisplay) {
+                memDisplay.textContent = memory !== 0 ? `Memory: ${memory}` : '';
+            }
+        }
+
+        function appendNumber(number) {
+            if (currentMode === 'programmer') {
+                number = number.toUpperCase();
+            }
+            if (number === '.' && currentInput.includes('.')) return;
+            currentInput += number;
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '') return;
+            if (previousValue !== '') calculate();
+            operator = op;
+            previousValue = currentInput;
+            currentInput = '';
+        }
+
+        function calculate() {
+            if (previousValue === '' || currentInput === '' || operator === '') return;
+            
+            let result;
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentInput);
+            
+            switch (operator) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': result = current !== 0 ? prev / current : 'Error'; break;
+                default: return;
+            }
+            
+            addToHistory(`${previousValue} ${operator} ${currentInput}`, result);
+            currentInput = result.toString();
+            operator = '';
+            previousValue = '';
+            stats.totalOps++;
+            updateDisplay();
+            updateStats();
+        }
+
+        function toggleSign() {
+            if (currentInput) {
+                currentInput = (parseFloat(currentInput) * -1).toString();
+                updateDisplay();
+            }
+        }
+
+        function deleteLast() {
+            currentInput = currentInput.toString().slice(0, -1);
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            operator = '';
+            previousValue = '';
+            updateDisplay();
+        }
+
+        function calculatePercent() {
+            if (currentInput) {
+                currentInput = (parseFloat(currentInput) / 100).toString();
+                updateDisplay();
+            }
+        }
+
+        function calculateSquareRoot() {
+            if (currentInput) {
+                const result = Math.sqrt(parseFloat(currentInput));
+                addToHistory(`√${currentInput}`, result);
+                currentInput = result.toString();
+                updateDisplay();
+            }
+        }
+
+        function calculateSquare() {
+            if (currentInput) {
+                const result = Math.pow(parseFloat(currentInput), 2);
+                addToHistory(`${currentInput}²`, result);
+                currentInput = result.toString();
+                updateDisplay();
+            }
+        }
+
+        function toggleDegRad() {
+            isDegree = !isDegree;
+            document.getElementById('deg-rad').textContent = isDegree ? 'DEG' : 'RAD';
+        }
+
+        function scientificFunction(func) {
+            if (!currentInput && func !== 'pi') return;
+            
+            let result;
+            const value = parseFloat(currentInput);
+            const angleValue = isDegree ? value * (Math.PI / 180) : value;
+
+            switch (func) {
+                case 'sin': result = Math.sin(angleValue); break;
+                case 'cos': result = Math.cos(angleValue); break;
+                case 'tan': result = Math.tan(angleValue); break;
+                case 'log': result = Math.log10(value); break;
+                case 'ln': result = Math.log(value); break;
+                case 'sqrt': result = Math.sqrt(value); break;
+                case 'square': result = Math.pow(value, 2); break;
+                case 'cube': result = Math.pow(value, 3); break;
+                case 'reciprocal': result = 1 / value; break;
+                case 'factorial': result = factorial(Math.floor(value)); break;
+                case 'pi': 
+                    currentInput = Math.PI.toString();
+                    updateDisplay();
+                    return;
+                default: return;
+            }
+
+            addToHistory(`${func}(${currentInput})`, result);
+            currentInput = result.toString();
+            updateDisplay();
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) result *= i;
+            return result;
+        }
+
+        function bitwiseOperation(op) {
+            if (currentInput === '') return;
+            if (previousValue !== '') {
+                const prev = parseInt(previousValue);
+                const curr = parseInt(currentInput);
+                let result;
+                
+                switch (bitwiseOp) {
+                    case 'AND': result = prev & curr; break;
+                    case 'OR': result = prev | curr; break;
+                    case 'XOR': result = prev ^ curr; break;
+                    default: result = prev;
+                }
+                
+                addToHistory(`${previousValue} ${bitwiseOp} ${currentInput}`, result);
+                currentInput = result.toString();
+                updateDisplay();
+            }
+            bitwiseOp = op;
+            previousValue = currentInput;
+            currentInput = '';
+        }
+
+        function memoryAdd() {
+            if (currentInput) {
+                memory += parseFloat(currentInput);
+                updateMemoryDisplay();
+            }
+        }
+
+        function memorySubtract() {
+            if (currentInput) {
+                memory -= parseFloat(currentInput);
+                updateMemoryDisplay();
+            }
+        }
+
+        function memoryRecall() {
+            currentInput = memory.toString();
+            updateDisplay();
+        }
+
+        function memoryClear() {
+            memory = 0;
+            updateMemoryDisplay();
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('standard-calc').classList.toggle('hidden', mode !== 'standard');
+            document.getElementById('scientific-calc').classList.toggle('hidden', mode !== 'scientific');
+            document.getElementById('programmer-calc').classList.toggle('hidden', mode !== 'programmer');
+            clearDisplay();
+        }
+
+        function addToHistory(expression, result) {
+            history.unshift({ expression, result, time: new Date().toLocaleTimeString() });
+            if (history.length > 50) history.pop();
+            updateHistoryDisplay();
+            localStorage.setItem('calcHistory', JSON.stringify(history));
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = history.map((item, index) => `
+                <div class="history-item" onclick="reuseHistory(${index})">
+                    <div class="history-item-expression">${item.expression}</div>
+                    <div class="history-item-result">= ${item.result}</div>
+                    <div style="font-size: 10px; color: #ccc;">${item.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function reuseHistory(index) {
+            currentInput = history[index].result.toString();
+            updateDisplay();
+        }
+
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+            localStorage.removeItem('calcHistory');
+            updateStats();
+        }
+
+        function loadHistory() {
+            const saved = localStorage.getItem('calcHistory');
+            if (saved) {
+                history = JSON.parse(saved);
+                updateHistoryDisplay();
+            }
+        }
+
+        function convertLength() {
+            const value = parseFloat(document.getElementById('length-input').value);
+            const from = document.getElementById('length-from').value;
+            if (!value) {
+                document.getElementById('length-result').textContent = '';
+                return;
+            }
+
+            const conversions = {
+                'm': 1,
+                'km': 0.001,
+                'cm': 100,
+                'ft': 3.28084,
+                'mi': 0.000621371
+            };
+
+            const toM = value / conversions[from];
+            const results = [];
+            for (let [unit, factor] of Object.entries(conversions)) {
+                if (unit !== from) {
+                    results.push(`${(toM * factor).toFixed(4)} ${unit}`);
+                }
+            }
+            document.getElementById('length-result').textContent = results.join(' | ');
+        }
+
+        function convertTemp() {
+            const value = parseFloat(document.getElementById('temp-input').value);
+            const from = document.getElementById('temp-from').value;
+            if (isNaN(value)) {
+                document.getElementById('temp-result').textContent = '';
+                return;
+            }
+
+            let c = value;
+            if (from === 'f') c = (value - 32) * 5/9;
+            if (from === 'k') c = value - 273.15;
+
+            const f = c * 9/5 + 32;
+            const k = c + 273.15;
+
+            document.getElementById('temp-result').textContent = 
+                `${f.toFixed(2)}°F | ${k.toFixed(2)}K`;
+        }
+
+        function convertWeight() {
+            const value = parseFloat(document.getElementById('weight-input').value);
+            const from = document.getElementById('weight-from').value;
+            if (!value) {
+                document.getElementById('weight-result').textContent = '';
+                return;
+            }
+
+            const conversions = {
+                'kg': 1,
+                'lb': 2.20462,
+                'g': 1000,
+                'oz': 35.274
+            };
+
+            const toKg = value / conversions[from];
+            const results = [];
+            for (let [unit, factor] of Object.entries(conversions)) {
+                if (unit !== from) {
+                    results.push(`${(toKg * factor).toFixed(4)} ${unit}`);
+                }
+            }
+            document.getElementById('weight-result').textContent = results.join(' | ');
+        }
+
+        function updateStats() {
+            document.getElementById('total-ops').textContent = stats.totalOps;
+            document.getElementById('total-history').textContent = history.length;
+            
+            if (history.length > 0) {
+                document.getElementById('last-result').textContent = history[0].result;
+                
+                const results = history.map(h => parseFloat(h.result)).filter(r => !isNaN(r));
+                if (results.length > 0) {
+                    const avg = results.reduce((a, b) => a + b, 0) / results.length;
+                    document.getElementById('avg-result').textContent = avg.toFixed(4);
+                }
+            }
+
+            const elapsed = Math.floor((Date.now() - stats.sessionStart) / 1000);
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+            
+            let timeStr = '';
+            if (hours > 0) timeStr += `${hours}h `;
+            if (minutes > 0 || hours > 0) timeStr += `${minutes}m `;
+            timeStr += `${seconds}s`;
+            
+            document.getElementById('session-time').textContent = timeStr;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            localStorage.setItem('calcTheme', document.body.classList.contains('dark-theme'));
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.') appendNumber('.');
+            if (e.key === '+') appendOperator('+');
+            if (e.key === '-') appendOperator('-');
+            if (e.key === '*') { e.preventDefault(); appendOperator('*'); }
+            if (e.key === '/') { e.preventDefault(); appendOperator('/'); }
+            if (e.key === 'Enter') { e.preventDefault(); calculate(); }
+            if (e.key === 'Backspace') deleteLast();
+            if (e.key === 'Escape') clearDisplay();
+        });
+
+        window.addEventListener('load', () => {
+            loadHistory();
+            updateMemoryDisplay();
+            updateStats();
+            setInterval(updateStats, 1000);
+            
+            if (localStorage.getItem('calcTheme') === 'true') {
+                document.body.classList.add('dark-theme');
+            }
+        });
+    </script>
+</body>
+</html>
