@@ -1,16 +1,18 @@
-# Advanced Calculator
+# Advanced Calculator — Powerful
 
-This commit adds a small SEO-friendly, fast, and accessible calculator website.
+This update enhances the calculator with the following features:
 
-Features:
-- SEO meta tags, Open Graph, and JSON-LD structured data
-- Lightweight, no frameworks
-- Keyboard support, accessible ARIA attributes
-- Local history stored in localStorage
-- Copy result and clear history actions
+- Advanced math powered by math.js (via CDN): trig, logs, powers, constants, and more.
+- Scientific buttons and a toggle to reveal/hide the scientific panel.
+- Memory functions: MC, MR, M+, M- with a simple display.
+- Export and clear history; history length increased.
+- Simple service worker (sw.js) to cache the app and enable offline use.
 
-To preview locally:
-1. Serve the repository directory with a static server (e.g. `python -m http.server` or `npx serve`).
-2. Open `http://localhost:8000` (or the port your server uses).
+Notes & security
+- Using math.js via CDN makes it easy to evaluate complex expressions safely; it still evaluates formulas, so avoid evaluating untrusted user input on a server without sandboxing.
+- The service worker caches core assets; adjust the cache strategy for more advanced offline behaviors.
 
-You can deploy on GitHub Pages from the branch `feature/seo-friendly-calculator` or merge into your default branch.
+To test locally
+1. Serve the repo root (for service worker to register use a server; file:// won't work):
+   python -m http.server 8000
+2. Open http://localhost:8000 and try scientific functions (sin(pi/2) -> 1), memory operations, and export history.

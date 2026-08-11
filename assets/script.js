@@ -5,18 +5,35 @@
   const historyList = document.getElementById('historyList');
   const copyBtn = document.getElementById('copyBtn');
   const clearHistoryBtn = document.getElementById('clearHistory');
+  const exportHistoryBtn = document.getElementById('exportHistory');
+  const toggleSci = document.getElementById('toggleSci');
+  const sciencePanel = document.getElementById('sciencePanel');
+  const memDisplay = document.getElementById('memVal');
 
   let current = '';
+  let memory = 0;
   const STORAGE_KEY = 'advanced_calc_history_v1';
 
-  function safeEval(expr){
-    // allow only digits, operators, parentheses, decimal point and spaces
-    if(!/^[0-9+\-*/(). %]+$/.test(expr)) throw new Error('Invalid characters');
-    // replace unicode minus and multiply/divide with JS operators
+  // Try to use mathjs if available; fallback to a small evaluator
+  function hasMathJs(){ return typeof math !== 'undefined' && typeof math.evaluate === 'function'; }
+
+  function evalWithMathJS(expr){
+    // Preprocess expression: replace unicode symbols
     expr = expr.replace(/[××]/g, '*').replace(/[÷]/g, '/').replace(/−/g, '-');
-    // simple percent handling: convert 50% -> (50/100)
+    // percent: convert 50% to (50/100)
     expr = expr.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-    // eslint-disable-next-line no-new-func
+    // allow 'pi' and 'e' constants; mathjs supports them
+    return math.evaluate(expr);
+  }
+
+  function safeEval(expr){
+    if(hasMathJs()){
+      return evalWithMathJS(expr);
+    }
+    // fallback: restrict characters and use Function for very basic math
+    if(!/^[0-9+\-*/(). %]+$/.test(expr)) throw new Error('Invalid characters');
+    expr = expr.replace(/[××]/g, '*').replace(/[÷]/g, '/').replace(/−/g, '-');
+    expr = expr.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
     return Function(`"use strict";return (${expr})`)();
   }
 
@@ -29,7 +46,7 @@
   function pushHistory(expr,res){
     const list = loadHistory();
     list.unshift({expr,res,at:Date.now()});
-    if(list.length>50) list.pop();
+    if(list.length>200) list.pop();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
     renderHistory();
   }
@@ -54,12 +71,17 @@
 
   document.querySelectorAll('[data-value]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      setExpression((input.value || '') + btn.dataset.value);
+      const val = btn.dataset.value;
+      // insert value at cursor position
+      const start = input.selectionStart || input.value.length;
+      const next = input.value.slice(0,start) + val + input.value.slice(start);
+      setExpression(next);
       input.focus();
+      input.setSelectionRange(start + val.length, start + val.length);
     });
   });
-  document.querySelector('[data-action="clear"]').addEventListener('click', ()=>{ setExpression(''); });
-  document.querySelector('[data-action="back"]').addEventListener('click', ()=>{ setExpression((input.value||'').slice(0,-1)); });
+  document.querySelector('[data-action="clear"]').addEventListener('click', ()=>{ setExpression(''); input.focus(); });
+  document.querySelector('[data-action="back"]').addEventListener('click', ()=>{ const v = input.value || ''; setExpression(v.slice(0,-1)); input.focus(); });
   document.querySelector('[data-action="equals"]').addEventListener('click', compute);
 
   document.getElementById('copyBtn').addEventListener('click', async ()=>{
@@ -67,6 +89,26 @@
   });
 
   clearHistoryBtn.addEventListener('click', ()=>{ localStorage.removeItem(STORAGE_KEY); renderHistory(); });
+
+  exportHistoryBtn.addEventListener('click', ()=>{
+    const data = JSON.stringify(loadHistory(), null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'calculator-history.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+
+  // memory buttons
+  document.getElementById('mc').addEventListener('click', ()=>{ memory = 0; updateMem(); });
+  document.getElementById('mr').addEventListener('click', ()=>{ setExpression(String(memory)); input.focus(); });
+  document.getElementById('mPlus').addEventListener('click', ()=>{ try{ const val = Number(safeEval(input.value||expressionEl.textContent)||0); memory += val; updateMem(); }catch(e){} });
+  document.getElementById('mMinus').addEventListener('click', ()=>{ try{ const val = Number(safeEval(input.value||expressionEl.textContent)||0); memory -= val; updateMem(); }catch(e){} });
+  function updateMem(){ memDisplay.textContent = String(memory); }
+
+  toggleSci.addEventListener('click', ()=>{
+    const visible = !sciencePanel.hidden;
+    sciencePanel.hidden = visible;
+    toggleSci.textContent = visible ? 'Show scientific' : 'Hide scientific';
+  });
 
   function compute(){
     const expr = (input.value || expressionEl.textContent).trim();
@@ -86,13 +128,15 @@
     if(e.key === 'Enter') { compute(); e.preventDefault(); }
     if(e.key === 'Escape') { setExpression(''); }
     if(e.key === 'Backspace') return; // handled by native input
-    // restrict to allowed keys for friendliness
-    if(e.key.length===1 && !/^[0-9+\-*/(). %]$/.test(e.key)){
+    // allow letters for function names when mathjs is present
+    if(e.key.length===1 && !hasMathJs() && !/^[0-9+\-*/(). %]$/.test(e.key)){
       e.preventDefault();
     }
   });
 
-  // ensure visible expression sync for non-JS or screen-readers
+  // init
   setExpression('');
   renderHistory();
+  updateMem();
+
 })();
