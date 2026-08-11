@@ -9,9 +9,11 @@
   const toggleSci = document.getElementById('toggleSci');
   const sciencePanel = document.getElementById('sciencePanel');
   const memDisplay = document.getElementById('memVal');
+  const degToggle = document.getElementById('degToggle');
 
   let current = '';
   let memory = 0;
+  let degreeMode = true; // default to degrees for usability
   const STORAGE_KEY = 'advanced_calc_history_v1';
 
   // Try to use mathjs if available; fallback to a small evaluator
@@ -22,8 +24,38 @@
     expr = expr.replace(/[××]/g, '*').replace(/[÷]/g, '/').replace(/−/g, '-');
     // percent: convert 50% to (50/100)
     expr = expr.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-    // allow 'pi' and 'e' constants; mathjs supports them
-    return math.evaluate(expr);
+
+    // Build a scope with helpers and trig conversions when in degree mode
+    const scope = {};
+
+    // Add nCr and nPr helpers using factorial to avoid depending on math.combinations
+    scope.nCr = function(n,k){
+      n = Number(n); k = Number(k);
+      if(n<0 || k<0 || k>n) return NaN;
+      return math ? (math.factorial(n) / (math.factorial(k) * math.factorial(n - k))) : NaN;
+    };
+    scope.nPr = function(n,k){
+      n = Number(n); k = Number(k);
+      if(n<0 || k<0 || k>n) return NaN;
+      return math ? (math.factorial(n) / math.factorial(n - k)) : NaN;
+    };
+
+    if(degreeMode){
+      // override trig functions to accept degrees
+      scope.sin = function(x){ return math.sin(x * math.pi / 180); };
+      scope.cos = function(x){ return math.cos(x * math.pi / 180); };
+      scope.tan = function(x){ return math.tan(x * math.pi / 180); };
+      // inverse trigs return degrees
+      scope.asin = function(x){ return math.asin(x) * 180 / math.pi; };
+      scope.acos = function(x){ return math.acos(x) * 180 / math.pi; };
+      scope.atan = function(x){ return math.atan(x) * 180 / math.pi; };
+    }
+
+    // Provide a safe 'factorial' alias if user uses n! notation, mathjs understands it but keep alias
+    scope.factorial = function(x){ return math.factorial(x); };
+
+    // safe evaluate with provided scope
+    return math.evaluate(expr, scope);
   }
 
   function safeEval(expr){
@@ -107,7 +139,14 @@
   toggleSci.addEventListener('click', ()=>{
     const visible = !sciencePanel.hidden;
     sciencePanel.hidden = visible;
-    toggleSci.textContent = visible ? 'Show scientific' : 'Hide scientific';
+    toggleSci.textContent = visible ? 'Hide scientific' : 'Show scientific';
+  });
+
+  degToggle.addEventListener('click', ()=>{
+    degreeMode = !degreeMode;
+    degToggle.textContent = degreeMode ? 'Deg' : 'Rad';
+    degToggle.setAttribute('aria-pressed', String(degreeMode));
+    input.focus();
   });
 
   function compute(){
@@ -138,5 +177,7 @@
   setExpression('');
   renderHistory();
   updateMem();
+  degToggle.textContent = degreeMode ? 'Deg' : 'Rad';
+  degToggle.setAttribute('aria-pressed', String(degreeMode));
 
 })();

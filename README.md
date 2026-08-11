@@ -1,18 +1,16 @@
-# Advanced Calculator — Powerful
+# Advanced Calculator — More functions
 
-This update enhances the calculator with the following features:
+This update adds a number of advanced math features and UX improvements:
 
-- Advanced math powered by math.js (via CDN): trig, logs, powers, constants, and more.
-- Scientific buttons and a toggle to reveal/hide the scientific panel.
-- Memory functions: MC, MR, M+, M- with a simple display.
-- Export and clear history; history length increased.
-- Simple service worker (sw.js) to cache the app and enable offline use.
+- Degree/Radian toggle: switch between degree and radian trig modes (Deg/Rad button).
+- Additional functions added to scientific panel: asin, acos, atan, asinh, acosh, atanh, sinh, cosh, tanh, log2, log10, exp, abs, floor, ceil, round, factorial (n!), 1/x, nCr, nPr.
+- nCr and nPr implemented as helper functions in the math.js evaluation scope to ensure availability.
+- Trig functions are wrapped when degree mode is enabled by providing custom scope functions to math.js.
 
-Notes & security
-- Using math.js via CDN makes it easy to evaluate complex expressions safely; it still evaluates formulas, so avoid evaluating untrusted user input on a server without sandboxing.
-- The service worker caches core assets; adjust the cache strategy for more advanced offline behaviors.
+How to use
+- Toggle scientific functions with "Show scientific".
+- Toggle degree/radian with the "Deg" button. Default is Deg for easier calculator usage.
+- Use nCr(n,k) and nPr(n,k) for combinations/permutations; they will work even if math.js doesn't provide those helpers natively.
 
-To test locally
-1. Serve the repo root (for service worker to register use a server; file:// won't work):
-   python -m http.server 8000
-2. Open http://localhost:8000 and try scientific functions (sin(pi/2) -> 1), memory operations, and export history.
+Security note
+- math.js evaluates expressions; the evaluator uses math.js when available and a strict fallback otherwise. Because the app runs client-side, untrusted server-side execution isn't a concern here, but avoid pasting untrusted code into the input.
