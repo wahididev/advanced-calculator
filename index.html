@@ -4,18 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Advanced Calculator — Fast, Smooth & Accessible</title>
-  <meta name="description" content="A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, and offline support." />
+  <meta name="description" content="A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, offline support, big numbers, complex numbers, calculus and plotting." />
   <meta name="author" content="wahididev">
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph / Social -->
   <meta property="og:title" content="Advanced Calculator — Fast, Smooth & Accessible">
-  <meta property="og:description" content="A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, and offline support.">
+  <meta property="og:description" content="A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, offline support, big numbers, complex numbers, calculus and plotting.">
   <meta property="og:type" content="website">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Advanced Calculator — Fast, Smooth & Accessible">
 
   <!-- Structured data (JSON-LD) -->
   <script type="application/ld+json">
@@ -24,14 +20,13 @@
     "@type": "WebApplication",
     "name": "Advanced Calculator",
     "url": "https://wahididev.github.io/advanced-calculator/",
-    "description": "A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, and offline support.",
+    "description": "A fast, smooth, SEO-friendly calculator web app with keyboard support, scientific functions, memory, history, offline support, big numbers, complex numbers, calculus and plotting.",
     "applicationCategory": "Utilities",
     "operatingSystem": "All",
     "offers": {"@type": "Offer", "price": "0"}
   }
   </script>
 
-  <!-- Preload critical CSS for fast first render -->
   <link rel="preload" href="assets/styles.css" as="style">
   <link rel="stylesheet" href="assets/styles.css">
 
@@ -42,7 +37,7 @@
   <main class="app" id="app">
     <header>
       <h1>Advanced Calculator</h1>
-      <p class="tagline">Fast, smooth, accessible & powerful — scientific functions, memory, history, and offline-ready.</p>
+      <p class="tagline">Powerful, accurate & fast — now with BigNumber, complex numbers, calculus, plotting, matrix ops, conversions, and more.</p>
     </header>
 
     <section class="calculator" aria-label="Calculator">
@@ -56,6 +51,7 @@
           <div>
             <button id="toggleSci" class="link">Show scientific</button>
             <button id="degToggle" class="link">Deg</button>
+            <button id="helpBtn" class="link">Help</button>
           </div>
           <div class="memory">
             <button id="mc" class="btn small">MC</button>
@@ -95,6 +91,8 @@
           <button id="copyBtn" class="link">Copy result</button>
           <button id="exportHistory" class="link">Export history</button>
           <button id="clearHistory" class="link">Clear history</button>
+          <button id="openGraph" class="link">Plot f(x)</button>
+          <button id="openSolver" class="link">Solve</button>
         </div>
       </div>
 
@@ -136,6 +134,11 @@
             <button data-value="nPr(" class="btn">nPr</button>
             <button data-value="1/" class="btn">1/x</button>
             <button data-value="^" class="btn">^</button>
+
+            <button id="matrixBtn" class="btn">Matrix</button>
+            <button id="convertBtn" class="btn">Convert</button>
+            <button id="complexBtn" class="btn">Complex</button>
+            <button id="derivBtn" class="btn">derivative()</button>
           </div>
         </div>
 
@@ -146,19 +149,53 @@
       </aside>
     </section>
 
+    <div id="graphModal" class="modal" hidden>
+      <div class="modal-content">
+        <button id="closeGraph" class="link">Close</button>
+        <h3>Plot f(x)</h3>
+        <input id="plotExpr" placeholder="Enter f(x), e.g. sin(x)" />
+        <div id="plotArea"><canvas id="plotCanvas" width="640" height="320"></canvas></div>
+      </div>
+    </div>
+
+    <div id="solverModal" class="modal" hidden>
+      <div class="modal-content">
+        <button id="closeSolver" class="link">Close</button>
+        <h3>Solve f(x)=0</h3>
+        <input id="solveExpr" placeholder="Enter f(x), e.g. x^2-2" />
+        <input id="solveGuessA" placeholder="a (start)" />
+        <input id="solveGuessB" placeholder="b (end)" />
+        <button id="runSolve" class="btn">Solve</button>
+        <div id="solveResult" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div id="helpOverlay" class="modal" hidden>
+      <div class="modal-content">
+        <button id="closeHelp" class="link">Close</button>
+        <h3>Help & Examples</h3>
+        <ul>
+          <li>Trig: sin(30) (Deg mode) or sin(pi/6) (Rad)</li>
+          <li>Factorial: 5! or factorial(5)</li>
+          <li>Combinations: nCr(5,2)</li>
+          <li>Complex: complex(2,3) * (1+2i)</li>
+          <li>Derivative: derivative("x^2", "x") or derivative("sin(x)", "x")</li>
+          <li>Integral: integral(f, a, b) — numeric integrate using Simpson's rule</li>
+          <li>Plot: click "Plot f(x)" and enter expression in x, supports math.js functions</li>
+        </ul>
+      </div>
+    </div>
+
     <footer>
-      <p>Built by <strong>wahididev</strong>. Lightweight and optimized for speed. Powered by math.js for advanced math.</p>
+      <p>Built by <strong>wahididev</strong>. Lightweight and optimized for speed. Advanced features powered by math.js (loaded locally via loader), with BigNumber, complex, calculus, plotting and more.</p>
     </footer>
   </main>
 
-  <!-- math.js for advanced/evaluated math expressions -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/dist/math.min.js" integrity="" crossorigin="anonymous" defer></script>
+  <script src="assets/math-loader.js" defer></script>
+  <script src="assets/plotter.js" defer></script>
   <script src="assets/script.js" defer></script>
   <script>
-    // register service worker if supported
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('/sw.js').catch(()=>{/* ignore */});
-    }
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(()=>{/* ignore */}); }
   </script>
 </body>
 </html>
