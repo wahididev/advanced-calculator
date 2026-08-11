@@ -1,0 +1,10 @@
+{
+  "name": "Advanced Calculator",
+  "short_name": "Calculator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#071029",
+  "theme_color": "#06b6d4",
+  "description": "A fast, smooth, SEO-friendly calculator web app.",
+  "icons": [{"src":"assets/favicon.svg","sizes":"any","type":"image/svg+xml"}]
+}
