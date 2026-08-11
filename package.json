@@ -1,0 +1,12 @@
+{
+  "name": "advanced-calculator-build",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "mathjs": "^11.8.0"
+  },
+  "scripts": {
+    "build:math": "node tools/build-math.js"
+  }
+}

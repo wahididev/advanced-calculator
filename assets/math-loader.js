@@ -1,4 +1,6 @@
-// local loader for mathjs: tries to load a local copy first, falls back to CDN; exposes window.math
+// assets/math-loader.js
+// Now the loader expects a local vendor bundle at /assets/vendor/math.min.js produced by the build script.
+// This intentionally removes the CDN fallback to keep the app self-contained.
 (function(){
   const local = '/assets/vendor/math.min.js';
   function loadScript(src){
@@ -9,15 +11,11 @@
 
   async function init(){
     try{
-      // try local vendor
       await loadScript(local);
       if(window.math) return;
-    }catch(e){}
-    try{
-      // fallback to CDN
-      await loadScript('https://cdn.jsdelivr.net/npm/mathjs@11.8.0/dist/math.min.js');
+      console.error('Local math bundle loaded but window.math is not available.');
     }catch(e){
-      console.warn('Failed to load math.js');
+      console.error('Local math bundle not found. Please run `npm run build:math` to produce /assets/vendor/math.min.js.');
     }
   }
   init();
